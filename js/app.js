@@ -1,48 +1,161 @@
 (function(){
 
   // ---------- section/page definitions ----------
+  // Mirrors the full "What Makes a House Feel Like Home?" design questionnaire.
+  // Questions with explicit checkbox options in the source doc render as pill
+  // buttons (single/multi as the question implies); open-ended questions with
+  // no listed options render as free text.
   var pages = [
     {
-      title:"About you & your lifestyle",
+      title:"About You & Your Lifestyle",
       fields:[
-        {key:'homeFeel', type:'single', label:'What makes a space truly feel like "home" to you?',
-          opts:["Familiar, personal touches","Comfort & softness","Order & calm","Warmth & good light","Memories & sentimental objects","Freedom to be a little messy"], allowOther:true},
-        {key:'moodWords', type:'multi', label:'When you walk in, how do you want it to make you feel?',
+        {key:'homeFeel', type:'text', label:'What makes a space truly feel like "home" to you?'},
+        {key:'moodWords', type:'multi', label:'When you walk into your home, how do you want it to make you feel?',
           opts:["Calm","Cozy","Luxurious","Energized","Peaceful","Sophisticated","Creative","Warm","Organized","Playful","Grounded"], allowOther:true},
-        {key:'activities', type:'multi', label:'How do you typically spend your time at home?',
-          opts:["Watching TV/movies","Cooking","Working from home","Reading","Entertaining","Exercising","Relaxing","Hobbies/creative"]},
-        {key:'mustSupport', type:'multi', label:'What does your home most need to support day to day? (pick up to 3)',
-          opts:["Work/productivity","Rest & sleep","Entertaining guests","Exercise/movement","Creative projects","Storage for belongings","Family or pet needs"], allowOther:true}
+        {key:'activities', type:'multi', label:'How do you typically spend your time at home?', hint:'Select all that apply.',
+          opts:["Watching TV/movies","Cooking","Eating","Working from home","Reading","Listening to music","Entertaining friends/family","Exercising","Relaxing","Getting ready","Hobbies/creative activities"], allowOther:true},
+        {key:'mustSupport', type:'text', label:'What are the 3 most important things your home needs to support in your daily life?'}
       ]
     },
     {
-      title:"Your apartment",
+      title:"Your Apartment",
+      intro:["Tell me about your current apartment."],
       fields:[
-        {key:'focusArea', type:'single', label:"Which area are we designing today?", opts:["Living room","Bedroom","Kitchen","Entryway","Home office","Whole apartment"], required:true},
-        {key:'wishChange', type:'single', label:"What's the #1 thing you wish you could change?",
-          opts:["More storage","Better lighting","More personality or color","Better furniture layout","More usable space","Less clutter"], allowOther:true},
-        {key:'keepLove', type:'text', label:'What do you currently love and want to keep?', hint:'Optional — a piece, a color, a corner, anything.'},
-        {key:'challenges', type:'multi', label:'Biggest challenges with the space', opts:["Layout","Lack of storage","Clutter","Lighting","Furniture size","Lack of personality","Awkward corners","Limited counter space","Lack of privacy"]}
+        {key:'apartmentType', type:'short', label:'Apartment type'},
+        {key:'squareFootage', type:'short', label:'Approximate square footage'},
+        {key:'numBedrooms', type:'short', label:'Number of bedrooms'},
+        {key:'numBathrooms', type:'short', label:'Number of bathrooms'},
+        {key:'timeLived', type:'short', label:'Approximate length of time you’ve lived there'},
+        {key:'focusArea', type:'multi', label:'Which areas would you like help designing?',
+          opts:["Entire apartment","Living room","Bedroom","Kitchen","Dining area","Bathroom","Closet","Entryway","Home office/workspace"], allowOther:true, required:true},
+        {key:'wishChange', type:'text', label:'What is the #1 thing about your current apartment that you wish you could change?'},
+        {key:'keepLove', type:'text', label:'What do you currently LOVE about your apartment and definitely want to preserve?'},
+        {key:'challenges', type:'multi', label:'What are the biggest challenges you experience with your current space?',
+          opts:["Layout","Lack of storage","Clutter","Lighting","Furniture size","Lack of personality","Awkward corners","Limited counter space","Lack of privacy"], allowOther:true}
       ]
     },
     {
-      title:"Your personal style",
+      title:"Your Existing Furniture & Belongings",
+      intro:["A good design does not necessarily mean replacing everything you already own. I want to understand what should be incorporated into your new design."],
       fields:[
-        {key:'overallFeel', type:'single', label:'How do you want your home to feel overall?', opts:["Minimal & uncluttered","Cozy & layered","Collected & eclectic","Organized but lived-in","Luxurious & polished"], required:true},
-        {key:'colorsLove', type:'multi', label:'Which colors make you feel comfortable, happy, or inspired?',
-          opts:["Warm neutrals (cream, tan, terracotta)","Cool neutrals (grey, white, black)","Earthy greens","Blues & teals","Blush & dusty pink","Bold jewel tones","Mustard & warm yellow","Monochrome, black & white"], allowOther:true},
-        {key:'colorsAvoid', type:'multi', label:"Any colors you'd rather avoid?",
-          opts:["Warm neutrals (cream, tan, terracotta)","Cool neutrals (grey, white, black)","Earthy greens","Blues & teals","Blush & dusty pink","Bold jewel tones","Mustard & warm yellow","Monochrome, black & white"], allowOther:true},
-        {key:'materials', type:'multi', label:'Materials & textures you gravitate toward', opts:["Linen","Velvet","Wool","Leather","Cotton","Wood","Stone","Metal","Glass","Bouclé"]},
-        {key:'styleLove', type:'multi', label:'Which styles feel like you?', opts:["Boho","Minimalist","Mid-century modern","Coastal","Industrial","Scandinavian","Cottagecore","Maximalist"], allowOther:true}
+        {key:'ownedItems', type:'multi', label:'Which of the following do you already own?',
+          opts:["Sofa/sectional","Coffee table","TV/TV stand","Dining table","Dining chairs","Bed","Nightstands","Dresser","Desk/workspace","Accent chair","Bookshelves/storage","Rugs","Lamps/lighting","Artwork","Mirrors","Decorative objects"], allowOther:true},
+        {key:'keepPreference', type:'single', label:'For the furniture and belongings you already own, which best describes your preference?',
+          opts:["I want to keep most of what I own","I want to keep some pieces and replace others","I’m open to replacing most things","I’m not sure — I would like recommendations"]},
+        {key:'mustKeepPieces', type:'text', label:'Are there any specific pieces you definitely want incorporated into the design?', hint:'Please include sentimental, expensive, inherited, vintage, or otherwise important pieces.'},
+        {key:'removePieces', type:'text', label:'Are there any pieces you definitely want to get rid of or replace?'}
       ]
     },
     {
-      title:"Budget & rental-friendly design",
+      title:"Your Space & Organization",
       fields:[
-        {key:'budget', type:'single', label:"Comfortable spending on this project", opts:["Under $500","$500–1,000","$1,000–2,500","$2,500–5,000","$5,000+","Not sure yet"], required:true},
-        {key:'rentalComfort', type:'single', label:'How comfortable are you making changes to a rental?', opts:["No permanent changes","Removable/renter-friendly only","Comfortable drilling holes","Comfortable with landlord approval"], required:true},
-        {key:'secondhand', type:'single', label:'Open to secondhand or vintage pieces?', opts:["Yes","Maybe, depending on the item","No"], required:true}
+        {key:'overallFeel', type:'single', label:'How do you prefer your home to feel?',
+          opts:["Minimal and uncluttered","Cozy and layered","Collected and eclectic","Organized but lived-in","Luxurious and polished"], allowOther:true, required:true},
+        {key:'clutterSpots', type:'multi', label:'Where does clutter tend to accumulate most often?',
+          opts:["Entryway","Kitchen counters","Dining table","Living room","Bedroom","Bathroom","Closet","Desk/workspace"], allowOther:true},
+        {key:'storageWishes', type:'multi', label:'What organizational or storage solutions would make your everyday life easier?',
+          opts:["Shoe storage","Entryway storage","Hidden storage","Pantry organization","Bathroom storage","Jewelry organization","Charging station"], allowOther:true},
+        {key:'outOfPlace', type:'text', label:'Is there anything in your current apartment that constantly feels "out of place" or difficult to organize?'}
+      ]
+    },
+    {
+      title:"Your Personal Style",
+      fields:[
+        {key:'vibe', type:'text', label:'What overall atmosphere or vibe would you like your home to have?', hint:'Describe it in your own words.'},
+        {key:'colorsLove', type:'text', label:'Which colors make you feel most comfortable, happy, or inspired?'},
+        {key:'colorsAvoid', type:'text', label:'Are there colors you strongly dislike or do not want in your home?'},
+        {key:'materials', type:'multi', label:'What materials, fabrics, and textures do you gravitate toward?',
+          opts:["Linen","Velvet","Wool","Leather","Cotton","Wood","Stone","Metal","Glass","Bouclé"], allowOther:true},
+        {key:'artDecor', type:'text', label:'What types of artwork, objects, or decorative elements resonate with you?'},
+        {key:'sentimental', type:'text', label:'Are there any cultural, personal, or sentimental elements you would like your home to reflect?'},
+        {key:'styleLove', type:'text', label:'Are there any design styles, furniture styles, or aesthetics that you particularly love or dislike?'}
+      ]
+    },
+    {
+      title:"How You Use Each Room — Living Room",
+      fields:[
+        {key:'livingRoomUse', type:'multi', label:'How do you primarily use your living room?',
+          opts:["Watching TV/movies","Relaxing","Reading","Entertaining","Dining","Working","Listening to music"], allowOther:true},
+        {key:'hostFrequency', type:'single', label:'How often do you host people at home?', opts:["Rarely","Occasionally","A few times a month","Frequently"]},
+        {key:'livingRoomBetter', type:'text', label:'What would you like your living room to do better?'}
+      ]
+    },
+    {
+      title:"How You Use Each Room — Bedroom",
+      fields:[
+        {key:'bedroomUse', type:'multi', label:'How do you primarily use your bedroom?',
+          opts:["Sleeping","Reading","Watching TV","Working","Getting dressed","Relaxing"], allowOther:true},
+        {key:'bedroomType', type:'single', label:'Do you prefer your bedroom to be:',
+          opts:["A sanctuary dedicated primarily to rest","A multifunctional space","Somewhere in between"]},
+        {key:'bedroomFeel', type:'text', label:'What would you like to see and feel when you walk into your bedroom?'}
+      ]
+    },
+    {
+      title:"How You Use Each Room — Kitchen",
+      fields:[
+        {key:'cookFrequency', type:'single', label:'How often do you cook at home?', opts:["Daily","Several times per week","Occasionally","Rarely"]},
+        {key:'kitchenUse', type:'multi', label:'How do you primarily use your kitchen?',
+          opts:["Cooking","Coffee/tea","Eating","Entertaining","Storage","Gathering/socializing"], allowOther:true},
+        {key:'kitchenBetter', type:'text', label:'What would make your kitchen more enjoyable or functional?'}
+      ]
+    },
+    {
+      title:"How You Use Each Room — Bathroom",
+      fields:[
+        {key:'bathroomChallenges', type:'text', label:'What are the biggest challenges with your current bathroom?'},
+        {key:'bathroomStorageImportance', type:'single', label:'How important are storage and organization in your bathroom?',
+          opts:["Not very important","Somewhat important","Very important","Extremely important"]},
+        {key:'bathroomWishes', type:'text', label:'Is there anything you wish your bathroom accommodated better?'}
+      ]
+    },
+    {
+      title:"How You Use Each Room — Closet",
+      fields:[
+        {key:'closetChallenges', type:'text', label:'What are the biggest challenges with your current closet?'},
+        {key:'closetWishes', type:'multi', label:'What would make your closet easier to use?',
+          opts:["More hanging space","Shoe storage","Drawers","Accessory organization","Seasonal storage","Better visibility"], allowOther:true}
+      ]
+    },
+    {
+      title:"Budget & Rental-Friendly Design",
+      fields:[
+        {key:'budget', type:'single', label:'Approximately how much are you comfortable spending on furniture, décor, and improvements for this project?',
+          opts:["Under $500","$500–$1,000","$1,000–$2,500","$2,500–$5,000","$5,000+","I’m not sure yet"], required:true},
+        {key:'prioritySpend', type:'multi', label:'If you had to prioritize spending, where would you rather invest?', hint:'Select up to 3.',
+          opts:["Sofa","Bed/mattress","Dining furniture","Rugs","Lighting","Artwork","Storage/organization","Décor/accessories","Window treatments"], allowOther:true},
+        {key:'rentalComfort', type:'single', label:'How comfortable are you making changes to a rental apartment?',
+          opts:["I don’t want to make permanent changes","I’m comfortable with removable/renter-friendly changes","I’m comfortable drilling holes or mounting things","I’m comfortable making significant changes with landlord approval"], required:true},
+        {key:'diyComfort', type:'single', label:'Are you comfortable assembling furniture or completing simple DIY projects?',
+          opts:["Yes","Sometimes","No — I prefer ready-to-use solutions"]},
+        {key:'secondhand', type:'single', label:'Are you open to purchasing secondhand, vintage, or antique pieces?',
+          opts:["Yes","Maybe, depending on the item","No"], required:true}
+      ]
+    },
+    {
+      title:"Your Dream Home",
+      fields:[
+        {key:'changeOneThing', type:'text', label:'If you could change one thing about your current home, what would it be?'},
+        {key:'stayFeatures', type:'text', label:'What features would make you want to stay in your apartment for many years?'},
+        {key:'finishedFeeling', type:'text', label:'Imagine walking into your finished apartment six months from now. What would make you think, “This finally feels like me”?'}
+      ]
+    },
+    {
+      title:"Photos & Measurements",
+      intro:[
+        "To create an accurate design concept, it helps to have a few extra details — feel free to send these separately (by email or upload) rather than here.",
+        {heading:"Photos — if possible, include:", items:["A photo from each corner of the room","Photos of windows and doors","Photos of existing furniture","Photos of areas that feel problematic","Photos of storage/closets","Photos showing how rooms connect to one another"]},
+        {heading:"Floor plan", items:["If your apartment provided you with a floor plan, please have it ready to share."]},
+        {heading:"Measurements — if available:", items:["Room length and width","Ceiling height","Window dimensions","Door locations","Major furniture dimensions","Wall sections where furniture/artwork may be placed"]},
+        "Don’t worry if you don’t have every measurement. We can work with what you have."
+      ],
+      fields:[
+        {key:'photosNote', type:'text', label:'Anything to note about your photos, floor plan, or measurements?', hint:'Optional.'}
+      ]
+    },
+    {
+      title:"Final Question",
+      fields:[
+        {key:'finalThoughts', type:'text', label:'Is there anything else you think I should know about you, your lifestyle, your apartment, or what you want this space to become?'}
       ]
     }
   ];
@@ -72,7 +185,33 @@
     var p=pages[page];
     return p.fields.every(function(f){
       if(!f.required) return true;
-      return !!answers[f.key];
+      var v=answers[f.key];
+      if(f.type==='multi') return Array.isArray(v) && v.length>0;
+      return !!v;
+    });
+  }
+
+  function renderIntro(container, intro){
+    intro.forEach(function(item){
+      if(typeof item === 'string'){
+        var p=document.createElement('p');
+        p.className='page-intro';
+        p.textContent=item;
+        container.appendChild(p);
+      } else {
+        var h=document.createElement('p');
+        h.className='page-intro page-intro-heading';
+        h.textContent=item.heading;
+        container.appendChild(h);
+        var ul=document.createElement('ul');
+        ul.className='page-intro-list';
+        item.items.forEach(function(li){
+          var el=document.createElement('li');
+          el.textContent=li;
+          ul.appendChild(el);
+        });
+        container.appendChild(ul);
+      }
     });
   }
 
@@ -83,14 +222,17 @@
     pin.className='pin '+pinColors[page%4];
     fieldsWrap.innerHTML='';
 
+    if(p.intro){ renderIntro(fieldsWrap, p.intro); }
+
     p.fields.forEach(function(f){
       var wrap=document.createElement('div');
       wrap.className='field';
       var label=document.createElement('label');
       label.textContent=f.label+(f.required?' *':'');
       wrap.appendChild(label);
-      if(f.hint){
-        var h=document.createElement('div'); h.className='hint'; h.textContent=f.hint; wrap.appendChild(h);
+      var hintText = f.hint || (f.type==='multi' ? 'Select all that apply.' : '');
+      if(hintText){
+        var h=document.createElement('div'); h.className='hint'; h.textContent=hintText; wrap.appendChild(h);
       }
 
       if(f.type==='text'){
@@ -98,6 +240,12 @@
         ta.value=answers[f.key]||'';
         ta.addEventListener('input', function(){ answers[f.key]=ta.value; updateNextState(); });
         wrap.appendChild(ta);
+      } else if(f.type==='short'){
+        var si=document.createElement('input');
+        si.type='text';
+        si.value=answers[f.key]||'';
+        si.addEventListener('input', function(){ answers[f.key]=si.value; updateNextState(); });
+        wrap.appendChild(si);
       } else {
         var optsWrap=document.createElement('div');
         optsWrap.className='options';
@@ -165,8 +313,8 @@
     return (typeof h==='string' && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(h)) ? h : fallback;
   }
   var colorFamilyHex = {
-    "Warm neutrals (cream, tan, terracotta)":["#E7D3B0","#B8763F"],
-    "Cool neutrals (grey, white, black)":["#D9D2C4","#3A3835"],
+    "Warm neutrals":["#E7D3B0","#B8763F"],
+    "Cool neutrals":["#D9D2C4","#3A3835"],
     "Earthy greens":["#7A8C5B","#3F5C46"],
     "Blues & teals":["#8FB3AC","#3F6656"],
     "Blush & dusty pink":["#E8C9C4","#C57C82"],
@@ -175,21 +323,44 @@
     "Monochrome, black & white":["#F1ECDE","#292420"]
   };
   var feelPalettes = {
-    "Minimal & uncluttered":["#EDE9E2","#C9C2B4","#7A756A","#3A362F","#B7A98C"],
-    "Cozy & layered":["#A9633D","#D9A441","#7A8C5B","#E7D3B0","#4A3728"],
-    "Collected & eclectic":["#8C2E3B","#D99A2B","#2E5E4E","#1E1A2E","#E8C9A0"],
+    "Minimal and uncluttered":["#EDE9E2","#C9C2B4","#7A756A","#3A362F","#B7A98C"],
+    "Cozy and layered":["#A9633D","#D9A441","#7A8C5B","#E7D3B0","#4A3728"],
+    "Collected and eclectic":["#8C2E3B","#D99A2B","#2E5E4E","#1E1A2E","#E8C9A0"],
     "Organized but lived-in":["#F2EEE5","#D8CFBE","#8E9A8B","#4A4741","#C4A77D"],
-    "Luxurious & polished":["#3A3835","#8C837A","#B0492E","#D9D2C4","#1E1C1A"]
+    "Luxurious and polished":["#3A3835","#8C837A","#B0492E","#D9D2C4","#1E1C1A"]
   };
 
+  // Q19 ("Which colors make you feel comfortable, happy, or inspired?") is now
+  // free text in the source doc, so we scan for color-family keywords instead
+  // of relying on checkbox picks.
+  var colorKeywordRules = [
+    {re:/\b(green|sage|olive|forest|emerald)/i, fam:"Earthy greens"},
+    {re:/\b(blue|teal|navy|aqua|turquoise)/i, fam:"Blues & teals"},
+    {re:/\b(pink|blush|rose|mauve)/i, fam:"Blush & dusty pink"},
+    {re:/\b(jewel|sapphire|rub(y|ies)|burgundy|maroon|wine|plum)/i, fam:"Bold jewel tones"},
+    {re:/\b(mustard|yellow|gold|ochre|amber)/i, fam:"Mustard & warm yellow"},
+    {re:/\b(monochrome|black\s*(and|&)\s*white)/i, fam:"Monochrome, black & white"},
+    {re:/\b(gr[ae]y|charcoal|black|white|ivory)/i, fam:"Cool neutrals"},
+    {re:/\b(cream|tan|terracotta|beige|camel|sand|warm neutral)/i, fam:"Warm neutrals"}
+  ];
+  function matchColorFamilies(text){
+    if(!text) return [];
+    var matches=[];
+    colorKeywordRules.forEach(function(r){
+      if(r.re.test(text) && matches.indexOf(r.fam)===-1) matches.push(r.fam);
+    });
+    return matches;
+  }
+
   function pickPalette(){
-    if(answers.colorsLove && answers.colorsLove.length){
+    var families = matchColorFamilies(answers.colorsLove);
+    if(families.length){
       var picked=[];
-      answers.colorsLove.forEach(function(fam){ (colorFamilyHex[fam]||[]).forEach(function(h){ picked.push(h); }); });
-      while(picked.length<5){ picked=picked.concat(feelPalettes[answers.overallFeel]||feelPalettes["Cozy & layered"]); }
+      families.forEach(function(fam){ (colorFamilyHex[fam]||[]).forEach(function(h){ picked.push(h); }); });
+      while(picked.length<5){ picked=picked.concat(feelPalettes[answers.overallFeel]||feelPalettes["Cozy and layered"]); }
       return picked.slice(0,5);
     }
-    return feelPalettes[answers.overallFeel] || feelPalettes["Cozy & layered"];
+    return feelPalettes[answers.overallFeel] || feelPalettes["Cozy and layered"];
   }
 
   // ---------- texture rendering (from user's own material picks) ----------
@@ -207,7 +378,12 @@
   };
 
   // ---------- furniture icons (fixed categories) ----------
-  var isBed = function(){ return answers.focusArea==='Bedroom'; };
+  // Several areas can be selected (Q6); we visualize a bedroom scene only
+  // when Bedroom is picked and the broader living/whole-apartment areas aren't.
+  var isBed = function(){
+    var f = answers.focusArea || [];
+    return f.indexOf('Bedroom') > -1 && f.indexOf('Living room') === -1 && f.indexOf('Entire apartment') === -1;
+  };
 
   function icon(key, c1, c2){
     c1=safeHex(c1,'#8C7A5A'); c2=safeHex(c2,'#292420');
@@ -231,14 +407,14 @@
   }
 
   var furnitureTemplates = {
-    "Minimal & uncluttered":{ seatingNote:"one clean-lined piece, no ornate details", rugNote:"low-pile, solid or subtle texture", lightingNote:"a single sculptural floor or arc lamp", tableNote:"simple geometric shape, one material", storageNote:"closed storage — no visible clutter", wallArtNote:"one large piece rather than a gallery wall" },
-    "Cozy & layered":{ seatingNote:"deep and soft, room to sink in", rugNote:"a textured wool or wool-blend layer", lightingNote:"warm, low lighting — a table lamp over an overhead", tableNote:"warm wood, rounded edges", storageNote:"open shelving to display favorite things", wallArtNote:"a mix of framed pieces and textiles" },
-    "Collected & eclectic":{ seatingNote:"something with character — vintage shape or bold color", rugNote:"pattern-forward, layered over a plainer base rug", lightingNote:"a statement lamp as a conversation piece", tableNote:"vintage or unique silhouette", storageNote:"an interesting cabinet, not just a box", wallArtNote:"a full gallery wall, mixed frames and eras" },
+    "Minimal and uncluttered":{ seatingNote:"one clean-lined piece, no ornate details", rugNote:"low-pile, solid or subtle texture", lightingNote:"a single sculptural floor or arc lamp", tableNote:"simple geometric shape, one material", storageNote:"closed storage — no visible clutter", wallArtNote:"one large piece rather than a gallery wall" },
+    "Cozy and layered":{ seatingNote:"deep and soft, room to sink in", rugNote:"a textured wool or wool-blend layer", lightingNote:"warm, low lighting — a table lamp over an overhead", tableNote:"warm wood, rounded edges", storageNote:"open shelving to display favorite things", wallArtNote:"a mix of framed pieces and textiles" },
+    "Collected and eclectic":{ seatingNote:"something with character — vintage shape or bold color", rugNote:"pattern-forward, layered over a plainer base rug", lightingNote:"a statement lamp as a conversation piece", tableNote:"vintage or unique silhouette", storageNote:"an interesting cabinet, not just a box", wallArtNote:"a full gallery wall, mixed frames and eras" },
     "Organized but lived-in":{ seatingNote:"comfortable but tidy — track arms, defined cushions", rugNote:"durable, easy to keep clean", lightingNote:"layered lighting: overhead plus one accent", tableNote:"with a drawer or shelf for hidden storage", storageNote:"labeled, modular storage that scales", wallArtNote:"a few well-placed pieces, evenly spaced" },
-    "Luxurious & polished":{ seatingNote:"tailored upholstery, structured silhouette", rugNote:"a plush, high-pile rug in a rich tone", lightingNote:"a statement fixture with metal or glass detail", tableNote:"stone top or high-gloss finish", storageNote:"a fitted, furniture-grade storage piece", wallArtNote:"one museum-quality framed piece, well lit" }
+    "Luxurious and polished":{ seatingNote:"tailored upholstery, structured silhouette", rugNote:"a plush, high-pile rug in a rich tone", lightingNote:"a statement fixture with metal or glass detail", tableNote:"stone top or high-gloss finish", storageNote:"a fitted, furniture-grade storage piece", wallArtNote:"one museum-quality framed piece, well lit" }
   };
   function pickFurniture(){
-    var t = furnitureTemplates[answers.overallFeel] || furnitureTemplates["Cozy & layered"];
+    var t = furnitureTemplates[answers.overallFeel] || furnitureTemplates["Cozy and layered"];
     var seatWord = isBed() ? "Bed" : "Sofa";
     return {
       seating:{name:seatWord, note:"Look for " + t.seatingNote + "."},
@@ -250,38 +426,51 @@
     };
   }
 
+  function sentence(text){
+    if(!text) return '';
+    var t = text.trim();
+    return /[.!?]$/.test(t) ? t : t + '.';
+  }
+
   function buildBoard(){
     var palette = pickPalette();
-    var styleName = (answers.overallFeel || "Your style") + (answers.focusArea ? " · " + answers.focusArea : "");
+    var areas = (answers.focusArea || []).filter(function(a){ return a; });
+    var styleName = (answers.overallFeel || "Your style") + (areas.length ? " · " + areas.join(', ') : "");
+
     var briefBits = [];
+    if(answers.vibe) briefBits.push(sentence(answers.vibe));
     if(answers.moodWords && answers.moodWords.length) briefBits.push("You want the space to feel " + answers.moodWords.join(', ').toLowerCase() + ".");
-    if(answers.wishChange) briefBits.push("First fix: " + answers.wishChange.toLowerCase() + ".");
+    if(answers.wishChange) briefBits.push("First on your list: " + sentence(answers.wishChange));
     var brief = briefBits.length ? briefBits.join(' ') : "Here's a starting point based on your answers — refine as you go.";
+
     var tips = [];
-    if(answers.wishChange) tips.push("Address first: " + answers.wishChange);
-    (answers.mustSupport||[]).slice(0,2).forEach(function(m){ tips.push("Design around " + m.toLowerCase() + " since that's a daily need."); });
+    if(answers.wishChange) tips.push("Address first: " + sentence(answers.wishChange));
+    if(answers.mustSupport) tips.push("Keep this top of mind: " + sentence(answers.mustSupport));
     (answers.challenges||[]).slice(0,2).forEach(function(c){ tips.push("Tackle the " + c.toLowerCase() + " issue early — it shapes everything else."); });
-    if(tips.length===0) tips.push("Start with one anchor piece for the " + (answers.focusArea||"room") + " and build outward.");
+    if(tips.length===0) tips.push("Start with one anchor piece for the " + (areas[0]||"room") + " and build outward.");
+
+    var mantra = "Make it work for how you actually live, then make it beautiful.";
+    if(answers.finishedFeeling && answers.finishedFeeling.trim().length<=160) mantra = answers.finishedFeeling.trim();
+
     return {
       styleName: styleName, palette: palette, brief: brief, tips: tips.slice(0,5),
-      mantra: "Make it work for how you actually live, then make it beautiful.",
-      furniture: pickFurniture()
+      mantra: mantra, furniture: pickFurniture()
     };
   }
 
   var rentalTipPool = {
-    "No permanent changes":["Rely on removable hooks, tension rods, and freestanding storage.","Use large rugs and furniture placement to define zones instead of paint."],
-    "Removable/renter-friendly only":["Use removable adhesive strips and hooks instead of nails.","Lean large art or a mirror against the wall instead of hanging it."],
-    "Comfortable drilling holes":["Anchor shelving properly — it opens up storage removable options can't.","A gallery wall of hung art reads more intentional than leaned pieces."],
-    "Comfortable with landlord approval":["Ask about approved paint or fixture changes — a single accent wall goes a long way.","Consider peel-and-stick or approved wallpaper for one feature wall."]
+    "I don’t want to make permanent changes":["Rely on removable hooks, tension rods, and freestanding storage.","Use large rugs and furniture placement to define zones instead of paint."],
+    "I’m comfortable with removable/renter-friendly changes":["Use removable adhesive strips and hooks instead of nails.","Lean large art or a mirror against the wall instead of hanging it."],
+    "I’m comfortable drilling holes or mounting things":["Anchor shelving properly — it opens up storage removable options can't.","A gallery wall of hung art reads more intentional than leaned pieces."],
+    "I’m comfortable making significant changes with landlord approval":["Ask about approved paint or fixture changes — a single accent wall goes a long way.","Consider peel-and-stick or approved wallpaper for one feature wall."]
   };
   var budgetTipPool = {
     "Under $500":["Prioritize one anchor piece; thrift or DIY the rest.","Textiles (pillows, a throw, curtains) change a room fastest for the least money."],
-    "$500–1,000":["Split the budget: one investment piece, the rest thrifted or budget-new.","Save receipts — small swaps (hardware, lighting) add up to a big shift."],
-    "$1,000–2,500":["Invest in the piece you touch most — bed, sofa, or desk chair.","Mix one or two new pieces with secondhand finds for the rest."],
-    "$2,500–5,000":["This covers a real furniture refresh — prioritize durability on daily-use pieces.","Consider a designer or vintage piece as the room's focal point."],
+    "$500–$1,000":["Split the budget: one investment piece, the rest thrifted or budget-new.","Save receipts — small swaps (hardware, lighting) add up to a big shift."],
+    "$1,000–$2,500":["Invest in the piece you touch most — bed, sofa, or desk chair.","Mix one or two new pieces with secondhand finds for the rest."],
+    "$2,500–$5,000":["This covers a real furniture refresh — prioritize durability on daily-use pieces.","Consider a designer or vintage piece as the room's focal point."],
     "$5,000+":["You can fully outfit the space — sequence purchases by room priority.","Custom or made-to-order pieces (rugs, drapery) become realistic at this range."],
-    "Not sure yet":["Start with the cheapest high-impact changes (textiles, lighting, art) while you plan.","Price out your top 3 wish-list items before committing to a full budget."]
+    "I’m not sure yet":["Start with the cheapest high-impact changes (textiles, lighting, art) while you plan.","Price out your top 3 wish-list items before committing to a full budget."]
   };
 
   // ---------- room mockup SVG ----------
@@ -349,11 +538,11 @@
     document.getElementById('loading').style.display='none';
     document.getElementById('result').style.display='block';
 
-    document.getElementById('resultTitle').textContent = data.styleName || (answers.focusArea || 'Your board');
+    document.getElementById('resultTitle').textContent = data.styleName || 'Your board';
     document.getElementById('resultBrief').textContent = data.brief || '';
 
-    var palette = (data.palette||[]).map(function(h,i){ return safeHex(h, feelPalettes["Cozy & layered"][i]); });
-    while(palette.length<5) palette.push(feelPalettes["Cozy & layered"][palette.length]);
+    var palette = (data.palette||[]).map(function(h,i){ return safeHex(h, feelPalettes["Cozy and layered"][i]); });
+    while(palette.length<5) palette.push(feelPalettes["Cozy and layered"][palette.length]);
 
     document.getElementById('roomSvgWrap').innerHTML = roomSVG(palette);
 

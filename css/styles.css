@@ -33,6 +33,11 @@ h1,h2,h3{ font-family:'Fraunces', serif; font-weight:600; margin:0; line-height:
 .quiz-eyebrow{ font-size:0.78rem; color:var(--ink-soft); margin-bottom:2px; }
 .section-title{ font-size:1.55rem; margin-bottom:22px; }
 
+.page-intro{ font-size:0.9rem; color:var(--ink-soft); line-height:1.55; margin:0 0 16px; }
+.page-intro-heading{ font-weight:600; color:var(--ink); margin-bottom:6px; }
+.page-intro-list{ margin:0 0 16px; padding-left:20px; font-size:0.88rem; color:var(--ink-soft); }
+.page-intro-list li{ margin-bottom:4px; }
+
 .field{ margin-bottom:24px; }
 .field label{ display:block; font-size:0.95rem; font-weight:600; margin-bottom:4px; }
 .field .hint{ font-size:0.78rem; color:var(--ink-soft); margin-bottom:10px; font-style:italic; }
