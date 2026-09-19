@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nestboard — build your apartment's vision board</title>
+<meta name="description" content="Answer a short design questionnaire and get a personalized apartment vision board: palette, materials, furniture picks, and rental-friendly tips.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="stage">
+
+  <div class="brand">
+    <div class="mark">nest<span>board</span></div>
+    <div class="tag">a real design questionnaire, condensed</div>
+  </div>
+
+  <div id="quiz">
+    <div class="card">
+      <div class="pin" id="pin"></div>
+      <div class="quiz-eyebrow" id="quizEyebrow">Section 1 of 4</div>
+      <h2 class="section-title" id="sectionTitle"></h2>
+      <div id="fieldsWrap"></div>
+      <div class="quiz-nav">
+        <div class="dots" id="dots"></div>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-ghost" id="backBtn" type="button">Back</button>
+          <button class="btn btn-primary" id="nextBtn" type="button">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="loading">
+    <div class="card">
+      <div class="spinner"></div>
+      <p style="margin:0; color:var(--ink-soft);">Putting your board together…</p>
+    </div>
+  </div>
+
+  <div id="result">
+    <div class="result-head">
+      <div class="kicker">your board, pinned up</div>
+      <h2 id="resultTitle"></h2>
+    </div>
+    <p class="brief" id="resultBrief"></p>
+    <div class="board">
+
+      <div class="note room">
+        <div class="tape" style="top:-12px; left:26px; transform:rotate(-3deg);"></div>
+        <h3 id="roomTitle">The room, pulled together</h3>
+        <div id="roomSvgWrap"></div>
+        <div class="room-caption">A rough sketch of the shapes and colors — not the exact pieces, just the idea.</div>
+      </div>
+
+      <div class="note palette">
+        <div class="tape" style="top:-12px; left:20px; transform:rotate(-4deg);"></div>
+        <h3>Palette</h3>
+        <div class="swatches" id="swatches"></div>
+        <div class="swatch-labels" id="swatchLabels"></div>
+      </div>
+
+      <div class="note texture">
+        <div class="tape" style="top:-12px; right:16px; transform:rotate(3deg);"></div>
+        <h3>Materials you picked</h3>
+        <div class="textures" id="textures"></div>
+      </div>
+
+      <div class="note furniture">
+        <div class="pin brass" style="top:-9px;"></div>
+        <h3 id="furnitureTitle">Furniture to look for</h3>
+        <div class="furn-grid" id="furnGrid"></div>
+      </div>
+
+      <div class="note tips">
+        <div class="pin pine" style="top:-9px;"></div>
+        <h3>Start with these</h3>
+        <ul id="tipsList"></ul>
+      </div>
+
+      <div class="note mantra"><p id="mantraText"></p></div>
+
+      <div class="note hacks">
+        <div class="pin brass" style="top:-9px;"></div>
+        <h3>For your lease & your budget</h3>
+        <div class="cols">
+          <div>
+            <p style="color:var(--ink); font-weight:600; margin:0 0 6px;">Rental-friendly</p>
+            <ul id="rentalHacks"></ul>
+          </div>
+          <div>
+            <p style="color:var(--ink); font-weight:600; margin:0 0 6px;">Budget plan</p>
+            <ul id="budgetHacks"></ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="result-actions">
+      <button class="btn btn-ghost" id="restartBtn" type="button">Start over</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
