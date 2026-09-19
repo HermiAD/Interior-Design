@@ -142,13 +142,14 @@
     {
       title:"Photos & Measurements",
       intro:[
-        "To create an accurate design concept, it helps to have a few extra details — feel free to send these separately (by email or upload) rather than here.",
+        "To create an accurate design concept, it helps to have a few extra details.",
         {heading:"Photos — if possible, include:", items:["A photo from each corner of the room","Photos of windows and doors","Photos of existing furniture","Photos of areas that feel problematic","Photos of storage/closets","Photos showing how rooms connect to one another"]},
         {heading:"Floor plan", items:["If your apartment provided you with a floor plan, please have it ready to share."]},
         {heading:"Measurements — if available:", items:["Room length and width","Ceiling height","Window dimensions","Door locations","Major furniture dimensions","Wall sections where furniture/artwork may be placed"]},
         "Don’t worry if you don’t have every measurement. We can work with what you have."
       ],
       fields:[
+        {key:'roomPhotos', type:'photos', label:'Upload a few photos of the space', hint:'These previews stay in your browser for this session only — nothing is uploaded or saved anywhere.'},
         {key:'photosNote', type:'text', label:'Anything to note about your photos, floor plan, or measurements?', hint:'Optional.'}
       ]
     },
@@ -164,6 +165,10 @@
   var page = 0;
   var pin=document.getElementById('pin');
   var pinColors=['','pine','brass',''];
+  // Object URLs for uploaded photo previews, keyed by field key. Preview-only:
+  // nothing is persisted or sent anywhere, so this just needs to survive
+  // re-renders of the same page within the session.
+  var photoState = {};
 
   var quizEyebrow=document.getElementById('quizEyebrow');
   var sectionTitle=document.getElementById('sectionTitle');
@@ -246,6 +251,54 @@
         si.value=answers[f.key]||'';
         si.addEventListener('input', function(){ answers[f.key]=si.value; updateNextState(); });
         wrap.appendChild(si);
+      } else if(f.type==='photos'){
+        wrap.classList.add('photo-field');
+        var fileInput=document.createElement('input');
+        fileInput.type='file';
+        fileInput.accept='image/*';
+        fileInput.multiple=true;
+        var previews=document.createElement('div');
+        previews.className='photo-previews';
+
+        function drawPreviews(){
+          previews.innerHTML='';
+          (photoState[f.key]||[]).forEach(function(item, idx){
+            var thumb=document.createElement('div');
+            thumb.className='photo-thumb';
+            var img=document.createElement('img');
+            img.src=item.url;
+            img.alt=item.name;
+            var rm=document.createElement('button');
+            rm.type='button';
+            rm.textContent='×';
+            rm.setAttribute('aria-label','Remove photo');
+            rm.addEventListener('click', function(){
+              URL.revokeObjectURL(item.url);
+              photoState[f.key].splice(idx,1);
+              drawPreviews();
+            });
+            thumb.appendChild(img);
+            thumb.appendChild(rm);
+            previews.appendChild(thumb);
+          });
+        }
+
+        fileInput.addEventListener('change', function(){
+          if(!photoState[f.key]) photoState[f.key]=[];
+          Array.prototype.forEach.call(fileInput.files, function(file){
+            photoState[f.key].push({url:URL.createObjectURL(file), name:file.name});
+          });
+          fileInput.value='';
+          drawPreviews();
+        });
+
+        wrap.appendChild(fileInput);
+        wrap.appendChild(previews);
+        var note=document.createElement('div');
+        note.className='photo-note';
+        note.textContent='Nothing here is uploaded or saved — these previews clear when you leave the page.';
+        wrap.appendChild(note);
+        drawPreviews();
       } else {
         var optsWrap=document.createElement('div');
         optsWrap.className='options';
@@ -364,18 +417,6 @@
   }
 
   // ---------- texture rendering (from user's own material picks) ----------
-  var textureCss = {
-    "Linen":'repeating-linear-gradient(90deg, #EDE7D8 0 2px, #E2DAC5 2px 4px), repeating-linear-gradient(0deg, rgba(120,95,55,0.05) 0 2px, transparent 2px 4px)',
-    "Velvet":'linear-gradient(100deg, rgba(255,255,255,0.10), transparent 30%), repeating-linear-gradient(100deg, rgba(0,0,0,0.06) 0 3px, transparent 3px 6px), #6E2233',
-    "Wool":'radial-gradient(rgba(255,255,255,0.5) 1.2px, transparent 1.8px), radial-gradient(rgba(0,0,0,0.06) 1.2px, transparent 1.8px), #E4D9C2',
-    "Leather":'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), transparent 40%), radial-gradient(circle at 70% 70%, rgba(0,0,0,0.18), transparent 45%), #8A5A34',
-    "Cotton":'repeating-linear-gradient(90deg, #F1ECDE 0 2px, #E9E1CC 2px 3px), repeating-linear-gradient(0deg, #F1ECDE 0 2px, #E9E1CC 2px 3px)',
-    "Wood":'repeating-linear-gradient(90deg, #A9713F 0 6px, #8F5C31 6px 8px, #B27E49 8px 14px)',
-    "Stone":'radial-gradient(circle at 25% 30%, rgba(255,255,255,0.18), transparent 35%), radial-gradient(circle at 65% 65%, rgba(0,0,0,0.10), transparent 40%), #ACA79C',
-    "Metal":'repeating-linear-gradient(115deg, #DADADA 0 2px, #B9B9B9 2px 4px)',
-    "Glass":'linear-gradient(120deg, rgba(255,255,255,0.7), rgba(200,220,220,0.25) 40%, rgba(255,255,255,0.55) 60%, rgba(200,220,220,0.2)), #DCE7E6',
-    "Bouclé":'radial-gradient(rgba(255,255,255,0.55) 1px, transparent 1.6px), radial-gradient(rgba(0,0,0,0.08) 1px, transparent 1.6px), #E4DCC8'
-  };
 
   // ---------- furniture icons (fixed categories) ----------
   // Several areas can be selected (Q6); we visualize a bedroom scene only
@@ -432,10 +473,34 @@
     return /[.!?]$/.test(t) ? t : t + '.';
   }
 
+  // ---------- Pinterest inspiration links ----------
+  // We can't fetch or host real photos ourselves, so real, always-fresh
+  // photos matching the user's exact answers come from live Pinterest
+  // search results instead of a static image.
+  function pinterestUrl(query){
+    return 'https://www.pinterest.com/search/pins/?q=' + encodeURIComponent(query.trim().replace(/\s+/g,' '));
+  }
+  function primaryRoomWord(){
+    var areas = (answers.focusArea || []).filter(function(a){ return a; });
+    return areas.length ? areas[0] : 'apartment';
+  }
+  var materialAccent = {
+    "Linen":"#E2DAC5","Velvet":"#6E2233","Wool":"#E4D9C2","Leather":"#8A5A34","Cotton":"#F1ECDE",
+    "Wood":"#A9713F","Stone":"#ACA79C","Metal":"#B9B9B9","Glass":"#DCE7E6","Bouclé":"#E4DCC8"
+  };
+
   function buildBoard(){
     var palette = pickPalette();
     var areas = (answers.focusArea || []).filter(function(a){ return a; });
     var styleName = (answers.overallFeel || "Your style") + (areas.length ? " · " + areas.join(', ') : "");
+    var feelWord = answers.overallFeel || '';
+    var roomWord = primaryRoomWord();
+
+    var heroQuery = [feelWord, roomWord, 'interior design ideas'].filter(Boolean).join(' ');
+    var materialsList = (answers.materials && answers.materials.length) ? answers.materials : ["Linen","Wood","Wool"];
+    var materials = materialsList.map(function(m){
+      return { name:m, color: materialAccent[m] || '#C9BFA8', url: pinterestUrl([m, feelWord, 'interior design'].filter(Boolean).join(' ')) };
+    });
 
     var briefBits = [];
     if(answers.vibe) briefBits.push(sentence(answers.vibe));
@@ -454,7 +519,12 @@
 
     return {
       styleName: styleName, palette: palette, brief: brief, tips: tips.slice(0,5),
-      mantra: mantra, furniture: pickFurniture()
+      mantra: mantra, furniture: pickFurniture(),
+      heroHeadline: "Real " + (feelWord ? feelWord.toLowerCase() + " " : "") + roomWord.toLowerCase() + " ideas",
+      heroSub: "Curated live from Pinterest, based on your style, palette, and materials — real photos to save, pin, and shop from.",
+      heroPinUrl: pinterestUrl(heroQuery),
+      materials: materials,
+      roomWord: roomWord, feelWord: feelWord
     };
   }
 
@@ -472,56 +542,6 @@
     "$5,000+":["You can fully outfit the space — sequence purchases by room priority.","Custom or made-to-order pieces (rugs, drapery) become realistic at this range."],
     "I’m not sure yet":["Start with the cheapest high-impact changes (textiles, lighting, art) while you plan.","Price out your top 3 wish-list items before committing to a full budget."]
   };
-
-  // ---------- room mockup SVG ----------
-  function roomSVG(palette){
-    var wall = safeHex(palette[3], '#D8CFBE');
-    var main = safeHex(palette[0], '#A9633D');
-    var rug  = safeHex(palette[1], '#D9A441');
-    var accent = safeHex(palette[2], '#7A8C5B');
-    var ink = '#292420';
-    var floor = '#C9A876';
-
-    var common =
-      '<rect x="0" y="0" width="400" height="170" fill="'+wall+'"/>' +
-      '<rect x="0" y="170" width="400" height="90" fill="'+floor+'"/>' +
-      '<rect x="0" y="170" width="400" height="90" fill="'+ink+'" opacity="0.05"/>' +
-      '<rect x="290" y="24" width="80" height="80" rx="2" fill="#EAE3D2" stroke="'+ink+'" stroke-width="2"/>' +
-      '<line x1="330" y1="24" x2="330" y2="104" stroke="'+ink+'" stroke-width="1.5"/>' +
-      '<line x1="290" y1="64" x2="370" y2="64" stroke="'+ink+'" stroke-width="1.5"/>' +
-      '<path d="M20 205 Q20 175 34 172 Q40 178 34 186 Q46 186 46 200 Q46 210 34 212 L20 212 Z" fill="'+accent+'" stroke="'+ink+'" stroke-width="1.5"/>' +
-      '<rect x="14" y="210" width="26" height="8" rx="1.5" fill="#8A5A34" stroke="'+ink+'" stroke-width="1.5"/>';
-
-    var scene;
-    if(isBed()){
-      scene =
-        '<rect x="120" y="60" width="140" height="40" rx="3" fill="#fff" stroke="'+ink+'" stroke-width="2"/>' +
-        '<rect x="130" y="66" width="34" height="26" rx="4" fill="'+accent+'" opacity="0.5" stroke="'+ink+'" stroke-width="1.2"/>' +
-        '<rect x="168" y="66" width="34" height="26" rx="4" fill="'+accent+'" opacity="0.5" stroke="'+ink+'" stroke-width="1.2"/>' +
-        '<ellipse cx="180" cy="210" rx="95" ry="32" fill="'+rug+'" stroke="'+ink+'" stroke-width="1.5"/>' +
-        '<rect x="90" y="98" width="150" height="72" rx="4" fill="'+main+'" stroke="'+ink+'" stroke-width="2"/>' +
-        '<rect x="235" y="128" width="34" height="42" rx="3" fill="#B98A55" stroke="'+ink+'" stroke-width="1.5"/>' +
-        '<circle cx="252" cy="118" r="9" fill="'+accent+'" stroke="'+ink+'" stroke-width="1.5"/>' +
-        '<rect x="140" y="20" width="80" height="34" rx="1.5" fill="#fff" stroke="'+ink+'" stroke-width="1.5"/>' +
-        '<path d="M146 46 L166 28 L180 40 L200 24 L214 46 Z" fill="'+accent+'" opacity="0.85"/>';
-    } else {
-      scene =
-        '<ellipse cx="170" cy="215" rx="105" ry="30" fill="'+rug+'" stroke="'+ink+'" stroke-width="1.5"/>' +
-        '<rect x="70" y="140" width="180" height="46" rx="10" fill="'+main+'" stroke="'+ink+'" stroke-width="2"/>' +
-        '<rect x="70" y="168" width="180" height="24" rx="8" fill="'+main+'" stroke="'+ink+'" stroke-width="2"/>' +
-        '<rect x="62" y="130" width="20" height="56" rx="6" fill="'+main+'" stroke="'+ink+'" stroke-width="2"/>' +
-        '<rect x="238" y="130" width="20" height="56" rx="6" fill="'+main+'" stroke="'+ink+'" stroke-width="2"/>' +
-        '<rect x="120" y="208" width="80" height="10" rx="2" fill="#B98A55" stroke="'+ink+'" stroke-width="1.5"/>' +
-        '<line x1="130" y1="218" x2="130" y2="232" stroke="'+ink+'" stroke-width="2"/>' +
-        '<line x1="190" y1="218" x2="190" y2="232" stroke="'+ink+'" stroke-width="2"/>' +
-        '<rect x="128" y="16" width="70" height="46" rx="1.5" fill="#fff" stroke="'+ink+'" stroke-width="1.5"/>' +
-        '<path d="M134 52 L152 30 L166 42 L184 20 L194 52 Z" fill="'+accent+'" opacity="0.85"/>' +
-        '<line x1="252" y1="180" x2="252" y2="130" stroke="'+ink+'" stroke-width="1.5"/>' +
-        '<path d="M240 130 L264 130 L258 112 L246 112 Z" fill="'+accent+'" stroke="'+ink+'" stroke-width="1.5"/>';
-    }
-
-    return '<svg viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg">' + common + scene + '</svg>';
-  }
 
   function generateBoard(){
     document.getElementById('quiz').style.display='none';
@@ -544,7 +564,11 @@
     var palette = (data.palette||[]).map(function(h,i){ return safeHex(h, feelPalettes["Cozy and layered"][i]); });
     while(palette.length<5) palette.push(feelPalettes["Cozy and layered"][palette.length]);
 
-    document.getElementById('roomSvgWrap').innerHTML = roomSVG(palette);
+    document.getElementById('heroHeadline').textContent = data.heroHeadline || 'Real ideas for your space';
+    document.getElementById('heroSub').textContent = data.heroSub || '';
+    var heroPinLink = document.getElementById('heroPinLink');
+    heroPinLink.href = data.heroPinUrl || 'https://www.pinterest.com/search/pins/?q=interior%20design';
+    document.getElementById('hero').style.setProperty('--hero-gradient', 'linear-gradient(120deg, ' + palette.join(', ') + ')');
 
     var sw=document.getElementById('swatches'), lb=document.getElementById('swatchLabels');
     sw.innerHTML=''; lb.innerHTML='';
@@ -555,14 +579,13 @@
 
     var tx=document.getElementById('textures');
     tx.innerHTML='';
-    var chosenMaterials = answers.materials && answers.materials.length ? answers.materials : ["Linen","Wood","Wool"];
-    chosenMaterials.forEach(function(m){
-      var wrap=document.createElement('div'); wrap.className='texture-chip';
-      var patch=document.createElement('div'); patch.className='swatch-patch';
-      patch.style.backgroundImage = textureCss[m] || textureCss["Linen"];
-      var label=document.createElement('span'); label.textContent=m;
-      wrap.appendChild(patch); wrap.appendChild(label);
-      tx.appendChild(wrap);
+    (data.materials||[]).forEach(function(m){
+      var row=document.createElement('div'); row.className='material-item';
+      var dot=document.createElement('div'); dot.className='material-dot'; dot.style.background=m.color;
+      var name=document.createElement('div'); name.className='material-name'; name.textContent=m.name;
+      var link=document.createElement('a'); link.className='material-link'; link.href=m.url; link.target='_blank'; link.rel='noopener noreferrer'; link.textContent='See real photos ↗';
+      row.appendChild(dot); row.appendChild(name); row.appendChild(link);
+      tx.appendChild(row);
     });
 
     var furnGrid=document.getElementById('furnGrid');
@@ -574,7 +597,10 @@
       card.innerHTML = icon(key, palette[0], '#292420');
       var nameEl=document.createElement('div'); nameEl.className='furn-name'; nameEl.textContent=f.name;
       var noteEl=document.createElement('div'); noteEl.className='furn-note'; noteEl.textContent=f.note;
-      card.appendChild(nameEl); card.appendChild(noteEl);
+      var linkEl=document.createElement('a'); linkEl.className='furn-link'; linkEl.target='_blank'; linkEl.rel='noopener noreferrer';
+      linkEl.href = pinterestUrl([f.name, data.feelWord, data.roomWord].filter(Boolean).join(' '));
+      linkEl.textContent = 'See on Pinterest ↗';
+      card.appendChild(nameEl); card.appendChild(noteEl); card.appendChild(linkEl);
       furnGrid.appendChild(card);
     });
 

@@ -15,7 +15,7 @@
 
   <div class="brand">
     <div class="mark">nest<span>board</span></div>
-    <div class="tag">a real design questionnaire, condensed</div>
+    <div class="tag">a real design questionnaire, pinned up</div>
   </div>
 
   <div id="quiz">
@@ -47,14 +47,18 @@
       <h2 id="resultTitle"></h2>
     </div>
     <p class="brief" id="resultBrief"></p>
-    <div class="board">
 
-      <div class="note room">
-        <div class="tape" style="top:-12px; left:26px; transform:rotate(-3deg);"></div>
-        <h3 id="roomTitle">The room, pulled together</h3>
-        <div id="roomSvgWrap"></div>
-        <div class="room-caption">A rough sketch of the shapes and colors — not the exact pieces, just the idea.</div>
+    <div class="hero" id="hero">
+      <div class="hero-tape"></div>
+      <div class="hero-inner">
+        <p class="hero-eyebrow">Real inspiration, matched to your answers</p>
+        <h3 id="heroHeadline"></h3>
+        <p id="heroSub"></p>
+        <a id="heroPinLink" class="btn btn-pin" href="#" target="_blank" rel="noopener noreferrer">Browse real photos on Pinterest ↗</a>
       </div>
+    </div>
+
+    <div class="board">
 
       <div class="note palette">
         <div class="tape" style="top:-12px; left:20px; transform:rotate(-4deg);"></div>
@@ -66,7 +70,7 @@
       <div class="note texture">
         <div class="tape" style="top:-12px; right:16px; transform:rotate(3deg);"></div>
         <h3>Materials you picked</h3>
-        <div class="textures" id="textures"></div>
+        <div class="material-list" id="textures"></div>
       </div>
 
       <div class="note furniture">
